@@ -1,0 +1,36 @@
+name: Compilando
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install solc
+
+    - name: Verify contract file exists
+      run: |
+        if (Test-Path contracts\HolaMundo.sol) {
+          Write-Output "Contract file exists"
+        } else {
+          Write-Output "Contract file does not exist"
+          exit 1
+        }
+
+    - name: Compile contracts
+      run: |
+        mkdir build
+        npx solc --bin --abi --include-path node_modules/ --base-path . -o build contracts/HolaMundo.sol
+
+    - name: List build directory
+      run: dir build
